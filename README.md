@@ -33,3 +33,5 @@ You need to create an appsettings.json file within the root directory with the f
 ```
 
 Finally, setup an Azure Service Bus queue with the name "main".
+
+Deploy as a Continuous WebJob on Azure.
