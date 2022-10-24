@@ -7,7 +7,7 @@ At the moment there is one queue where messages are added to for the NFT claims.
 The reason why a queue is need is that the storage id needs to be calculated correctly in order of transfer for the Loopring API. This also allows for load leveling as the rate of transfers will be constant and we won't be rate limited by the Loopring API too.
 
 # Setup
-You need to create an appsettings.json file within the root directory with the following properties
+You need to create an appsettings.json file within the root directory with the following properties, replacing with your own values
 
 ```json
 {
