@@ -21,7 +21,7 @@ You need to create an appsettings.json file within the root directory with the f
     "Exchange": "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4", //Loopring Exchange address,
     "MMorGMEPrivateKey": "", //Private key from metamask or gamestop wallet. DO NOT SHARE THIS AT ALL.
     "AzureServiceBusConnectionString": "", //Service Bus connection, DO NOT SHARE THIS AT ALL
-    "AzureSqlConnectionString": "" //Sql Connectionm DO NOT SHARE THIS AT ALL
+    "AzureSqlConnectionString": "" //Sql Connection DO NOT SHARE THIS AT ALL
   }
 }
 ```
