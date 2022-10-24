@@ -22,7 +22,7 @@ You need to create an appsettings.json file within the root directory with the f
     "LoopringPrivateKey": "", //Your loopring private key.  DO NOT SHARE THIS AT ALL.
     "LoopringAddress": "", //Your loopring address
     "LoopringAccountId": 191813, //Your loopring account id
-    "ValidUntil": 1700000000, //How long this mint should be valid for. Shouldn't have to change this value
+    "ValidUntil": 1700000000, //How long this transfer should be valid for. Shouldn't have to change this value
     "MaxFeeTokenId": 1, //The token id for the fee. 0 for ETH, 1 for LRC
     "Exchange": "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4", //Loopring Exchange address,
     "MMorGMEPrivateKey": "", //Private key from metamask or gamestop wallet. DO NOT SHARE THIS AT ALL.
