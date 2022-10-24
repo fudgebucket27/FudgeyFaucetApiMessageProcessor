@@ -35,3 +35,7 @@ You need to create an appsettings.json file within the root directory with the f
 Finally, setup an Azure Service Bus queue with the name "main".
 
 Deploy this project as a Continuous WebJob on Azure.
+
+
+# Credits
+Portions of code used in [LoopDropSharp](https://github.com/cobmin/LoopDropSharp/commits/master) by [Cobmin](https://twitter.com/cobmin) which is a fork based on code originally written by Fudgey.eth, were used to help bootstrap development.
