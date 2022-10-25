@@ -14,6 +14,7 @@ using Dapper;
 using System.Data;
 using MetaboyApi.Models;
 using System.Globalization;
+using System.Data.SqlClient;
 
 public class Program
 {
@@ -90,9 +91,9 @@ public class Program
         int? validStatus = null;
         try
         {
-            using (IDbConnection db = new System.Data.SqlClient.SqlConnection(AzureSqlConnectionString))
+            using (SqlConnection db = new System.Data.SqlClient.SqlConnection(AzureSqlConnectionString))
             {
-                db.Open();
+                await db.OpenAsync();
                 var claimedListParameters = new { Address = nftReciever.Address, NftData = nftReciever.NftData };
                 var claimedListSql = "select * from claimed where nftdata = @NftData and address = @Address";
                 var claimedListResult = await db.QueryAsync<Claimed>(claimedListSql, claimedListParameters);
