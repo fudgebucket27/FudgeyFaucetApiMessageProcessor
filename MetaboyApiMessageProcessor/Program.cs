@@ -284,9 +284,9 @@ public class Program
                 {
                     try
                     {
-                        using (IDbConnection db = new System.Data.SqlClient.SqlConnection(AzureSqlConnectionString))
+                        using (SqlConnection db = new System.Data.SqlClient.SqlConnection(AzureSqlConnectionString))
                         {
-                            db.Open();
+                            await db.OpenAsync();
                             var insertParameters = new
                             {
                                 NftData = nftReciever.NftData,
