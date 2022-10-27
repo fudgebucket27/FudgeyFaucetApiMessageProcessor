@@ -89,6 +89,7 @@ public class Program
         Console.WriteLine($"Received: {body}");
         NftReciever nftReciever = JsonConvert.DeserializeObject<NftReciever>(body);
         int? validStatus = null;
+        string nftAmount = "";
         try
         {
             using (SqlConnection db = new System.Data.SqlClient.SqlConnection(AzureSqlConnectionString))
@@ -99,7 +100,14 @@ public class Program
                 var claimedListResult = await db.QueryAsync<Claimed>(claimedListSql, claimedListParameters);
                 if (claimedListResult.Count() == 0)
                 {
-                    validStatus = 1; //valid continue
+                    var allowListParameters = new { Address = nftReciever.Address, NftData = nftReciever.NftData };
+                    var allowListSql = "select * from allowlist where nftdata = @NftData and address = @Address";
+                    var allowListResult = await db.QueryAsync<AllowList>(allowListSql, allowListParameters);
+                    if (allowListResult.Count() == 1)
+                    {
+                        nftAmount = allowListResult.First().Amount;
+                        validStatus = 1; //valid continue
+                    }
                 }
                 else
                 {
@@ -127,7 +135,6 @@ public class Program
             int nftTokenId;
             NftBalance userNftToken = new NftBalance();
             string nftData = nftReciever.NftData;
-            string nftAmount = "1";
             string transferMemo = "<3 MetaBoy";
             try
             {
@@ -292,9 +299,10 @@ public class Program
                                 NftData = nftReciever.NftData,
                                 Address = nftReciever.Address,
                                 ClaimedDate = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fffffff",
-                                       CultureInfo.InvariantCulture)
+                                       CultureInfo.InvariantCulture),
+                                Amount = nftAmount
                             };
-                            await db.ExecuteAsync("INSERT INTO Claimed (Address,NftData,ClaimedDate) VALUES (@Address, @NftData, @ClaimedDate)", insertParameters);
+                            await db.ExecuteAsync("INSERT INTO Claimed (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
                         }
                     }
                     catch (Exception ex)
