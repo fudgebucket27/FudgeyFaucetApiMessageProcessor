@@ -106,7 +106,11 @@ public class Program
                     if (allowListResult.Count() == 1)
                     {
                         nftAmount = allowListResult.First().Amount;
-                        validStatus = 1; //valid continue
+                        validStatus = 2; //valid continue
+                    }
+                    else
+                    {
+                        validStatus = 1; //not valid, don't continue
                     }
                 }
                 else
@@ -121,7 +125,7 @@ public class Program
             Console.WriteLine(ex.Message);
         }
 
-        if(validStatus == 1)
+        if(validStatus == 2)
         {
             string loopringApiKey = settings.LoopringApiKey;//loopring api key KEEP PRIVATE
             string loopringPrivateKey = settings.LoopringPrivateKey; //loopring private key KEEP PRIVATE
@@ -144,7 +148,6 @@ public class Program
 
                 //Storage id
                 var storageId = await loopringService.GetNextStorageId(loopringApiKey, fromAccountId, nftTokenId);
-                // Console.WriteLine($"Storage id: {JsonConvert.SerializeObject(storageId, Formatting.Indented)}");
 
                 //Getting the offchain fee
                 var offChainFee = await loopringService.GetOffChainFee(loopringApiKey, fromAccountId, 11, "0");
@@ -317,14 +320,52 @@ public class Program
             }
             finally
             {
-                // complete the message. message is deleted from the queue. 
+                try
+                {
+                    await args.CompleteMessageAsync(args.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
+            }
+        }
+        else if(validStatus == 1)
+        {
+            try
+            {
+                Console.WriteLine($"This address: {nftReciever.Address}, is not in the allow list for nft: {nftReciever.NftData}");
                 await args.CompleteMessageAsync(args.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        else if(validStatus == 0)
+        {
+            try
+            {
+                Console.WriteLine($"This address: {nftReciever.Address}, has already claimed nft: {nftReciever.NftData}");
+                await args.CompleteMessageAsync(args.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
         else
         {
-            Console.WriteLine($"This address: {nftReciever.Address}, has already claimed nft: {nftReciever.NftData}");
-            await args.CompleteMessageAsync(args.Message);
+            try
+            {
+                Console.WriteLine($"Something went wrong with address: {nftReciever.Address}, has already claimed nft: {nftReciever.NftData}");
+                await args.CompleteMessageAsync(args.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 
