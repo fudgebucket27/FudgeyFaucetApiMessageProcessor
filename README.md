@@ -9,8 +9,7 @@ The reason why a queue is need is that the storage id needs to be calculated cor
 ## Database setup
 The database should have the following tables:
 
-![image](https://user-images.githubusercontent.com/5258063/197443511-35e9812e-75df-4fff-9fef-fdd0062c88b2.png)
-
+![image](https://user-images.githubusercontent.com/5258063/198419761-29bdab55-0acf-4209-a115-9427040f8f5d.png)
 
 # Setup
 You need to create an appsettings.json file within the root directory with the following properties, replacing with your own values
