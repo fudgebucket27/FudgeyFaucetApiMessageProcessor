@@ -359,7 +359,7 @@ public class Program
         {
             try
             {
-                Console.WriteLine($"Something went wrong with address: {nftReciever.Address}, has already claimed nft: {nftReciever.NftData}");
+                Console.WriteLine($"Something went wrong with address: {nftReciever.Address}, and nft: {nftReciever.NftData}");
                 await args.CompleteMessageAsync(args.Message);
             }
             catch (Exception ex)
