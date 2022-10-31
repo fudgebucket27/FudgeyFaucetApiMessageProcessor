@@ -55,7 +55,7 @@ public class Program
         client = new ServiceBusClient(AzureServiceBusConnectionString, clientOptions);
 
         // create a processor that we can use to process the messages
-        processor = client.CreateProcessor(queueName, new ServiceBusProcessorOptions() { MaxConcurrentCalls = 1});
+        processor = client.CreateProcessor(queueName, new ServiceBusProcessorOptions() { MaxConcurrentCalls = 1, PrefetchCount = 1 });
 
         try
         {
