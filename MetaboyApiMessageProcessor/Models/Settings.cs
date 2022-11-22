@@ -21,5 +21,6 @@ namespace LoopDropSharp
         public string AzureServiceBusConnectionString { get; set; }
 
         public string AzureSqlConnectionString { get; set; }
+        public string TransferMemo { get; set; }
     }
 }

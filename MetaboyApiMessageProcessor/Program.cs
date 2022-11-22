@@ -139,7 +139,7 @@ public class Program
             int nftTokenId;
             NftBalance userNftToken = new NftBalance();
             string nftData = nftReciever.NftData;
-            string transferMemo = "<3 MetaBoy";
+            string transferMemo = settings.TransferMemo;
             try
             {
                 userNftToken = await loopringService.GetTokenIdWithCheck(settings.LoopringApiKey, settings.LoopringAccountId, nftData);
