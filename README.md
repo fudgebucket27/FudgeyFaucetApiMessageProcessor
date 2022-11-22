@@ -17,6 +17,7 @@ You need to create an appsettings.json file within the root directory with the f
 ```json
 {
   "Settings": {
+    "TransferMemo" :  "<3 MetaBoy",
     "LoopringApiKey": ", //Your loopring api key.  DO NOT SHARE THIS AT ALL.
     "LoopringPrivateKey": "", //Your loopring private key.  DO NOT SHARE THIS AT ALL.
     "LoopringAddress": "", //Your loopring address
