@@ -101,9 +101,9 @@ public class Program
                 var claimedListResult = await db.QueryAsync<Claimed>(claimedListSql, claimedListParameters);
                 if (claimedListResult.Count() > 0)
                 {
-                    // Check if Nft is in AvailableClaims and obtain Amount
+                    // Check if Nft is in Allowlist and obtain Amount
                     var allowListParameters = new { Address = nftReciever.Address, NftData = nftReciever.NftData };
-                    var allowListSql = "SELECT * FROM AvailableClaims WHERE NftData = @NftData AND Address = @Address";
+                    var allowListSql = "SELECT * FROM Allowlist WHERE NftData = @NftData AND Address = @Address";
                     var allowListResult = await db.QueryAsync<AllowList>(allowListSql, allowListParameters);
                     if (allowListResult.Count() == 1)
                     {
@@ -319,7 +319,7 @@ public class Program
                                 Amount = nftAmount
                             };
                             // Insert record into Completed Claims
-                            //await db.ExecuteAsync("INSERT INTO CompletedClaims (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
+                            //await db.ExecuteAsync("INSERT INTO Claimed (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
                             
 
                             var deleteParameters = new
@@ -329,7 +329,7 @@ public class Program
 
                             };
                             // Delete record from Available Claims
-                            //await db.ExecuteAsync("DELETE FROM AvailableClaims WHERE Address = @Address AND NftData = @NftData)", deleteParameters);
+                            //await db.ExecuteAsync("DELETE FROM Allowlist WHERE Address = @Address AND NftData = @NftData)", deleteParameters);
                             await db.CloseAsync();
                             Console.WriteLine($"Transferring to Address: {nftReciever.Address}  {nftAmount} of Nft: {nftReciever.NftData}");
                         }
