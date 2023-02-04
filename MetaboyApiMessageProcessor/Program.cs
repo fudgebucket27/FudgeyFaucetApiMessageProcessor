@@ -95,18 +95,21 @@ public class Program
             using (SqlConnection db = new System.Data.SqlClient.SqlConnection(AzureSqlConnectionString))
             {
                 await db.OpenAsync();
-                var claimedListParameters = new { Address = nftReciever.Address, NftData = nftReciever.NftData };
-                var claimedListSql = "select * from claimed where nftdata = @NftData and address = @Address";
+                // Check if Nft is in Claimable
+                var claimedListParameters = new { NftData = nftReciever.NftData };
+                var claimedListSql = "SELECT * FROM Claimable WHERE nftdata = @NftData";
                 var claimedListResult = await db.QueryAsync<Claimed>(claimedListSql, claimedListParameters);
-                if (claimedListResult.Count() == 0)
+                if (claimedListResult.Count() > 0)
                 {
+                    // Check if Nft is in AvailableClaims and obtain Amount
                     var allowListParameters = new { Address = nftReciever.Address, NftData = nftReciever.NftData };
-                    var allowListSql = "select * from allowlist where nftdata = @NftData and address = @Address";
+                    var allowListSql = "SELECT * FROM AvailableClaims WHERE NftData = @NftData AND Address = @Address";
                     var allowListResult = await db.QueryAsync<AllowList>(allowListSql, allowListParameters);
                     if (allowListResult.Count() == 1)
                     {
                         nftAmount = allowListResult.First().Amount;
                         validStatus = 2; //valid continue
+                        Console.WriteLine($"[INFO] Submitting Valid Claim for Transfer. Address: {nftReciever.Address} Nft : {nftReciever.NftData} Amount: {nftAmount}");
                     }
                     else
                     {
@@ -117,6 +120,7 @@ public class Program
                 {
                     validStatus = 0; //not valid, don't continue
                 }
+                await db.CloseAsync();
             }
         }
         catch (Exception ex)
@@ -143,6 +147,9 @@ public class Program
             try
             {
                 userNftToken = await loopringService.GetTokenIdWithCheck(settings.LoopringApiKey, settings.LoopringAccountId, nftData);
+                
+                // DEBUG -- We seem to be failing below! What is different here compared to what is in production!?
+                
                 nftTokenId = userNftToken.data[0].tokenId;
                 var toAddress = nftReciever.Address;
 
@@ -269,6 +276,9 @@ public class Program
                 var serializedECDRSASignature = EthECDSASignature.CreateStringSignature(ECDRSASignature);
                 var ecdsaSignature = serializedECDRSASignature + "0" + (int)2;
 
+                // DEBUG   ---- DO NOT ACTUALLY TRANSFER ANY NFTS - FOR TESTING ONLY
+                /*
+                
                 //Submit nft transfer
                 var nftTransferResponse = await loopringService.SubmitNftTransfer(
                     apiKey: loopringApiKey,
@@ -291,6 +301,9 @@ public class Program
                 Console.WriteLine(nftTransferResponse);
 
                 if(nftTransferResponse.Contains("process") || nftTransferResponse.Contains("received"))
+                */
+                // DEBUG
+                if (1 == 1)
                 {
                     try
                     {
@@ -305,7 +318,20 @@ public class Program
                                        CultureInfo.InvariantCulture),
                                 Amount = nftAmount
                             };
-                            await db.ExecuteAsync("INSERT INTO Claimed (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
+                            // Insert record into Completed Claims
+                            //await db.ExecuteAsync("INSERT INTO CompletedClaims (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
+                            
+
+                            var deleteParameters = new
+                            {
+                                NftData = nftReciever.NftData,
+                                Address = nftReciever.Address
+
+                            };
+                            // Delete record from Available Claims
+                            //await db.ExecuteAsync("DELETE FROM AvailableClaims WHERE Address = @Address AND NftData = @NftData)", deleteParameters);
+                            await db.CloseAsync();
+                            Console.WriteLine($"Transferring to Address: {nftReciever.Address}  {nftAmount} of Nft: {nftReciever.NftData}");
                         }
                     }
                     catch (Exception ex)
