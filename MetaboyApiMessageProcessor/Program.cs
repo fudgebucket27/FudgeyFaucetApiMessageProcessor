@@ -36,6 +36,17 @@ public class Program
 
     static string AzureSqlConnectionString = "";
 
+    static string loopringApiKey = "";
+    static string loopringPrivateKey = "";
+    static string MMorGMEPrivateKey = "";
+
+    // Following are now stored in Azure KeyVault:
+    // AzureServiceBusConnectionString
+    // AzureSqlConnectionString
+    // LoopringApiKey
+    // LoopringPrivateKey
+    // MMorGMEPrivateKey
+
     static async Task Main(string[] args)
     {
         // load services
@@ -48,8 +59,29 @@ public class Program
             .Build();
         settings = config.GetRequiredSection("Settings").Get<Settings>();
 
-        AzureServiceBusConnectionString = settings.AzureServiceBusConnectionString;
-        AzureSqlConnectionString = settings.AzureSqlConnectionString;
+        string settingsSource = "";
+        // Load values from Env supplied by Azure Key Vault
+        if (settings.UseAzureKeyVault == true)
+        {
+            AzureServiceBusConnectionString = config.GetValue<string>("AzureServiceBusConnectionString");
+            AzureSqlConnectionString = config.GetValue<string>("AzureSqlConnectionString");
+            loopringApiKey = config.GetValue<string>("LoopringApiKey");
+            loopringPrivateKey = config.GetValue<string>("LoopringPrivateKey");
+            MMorGMEPrivateKey = config.GetValue<string>("MMorGMEPrivateKey");
+            settingsSource = "Azure Key Vault via App Configuration Environment Settings";
+        }
+        // Use values from appsettings.json
+        else
+        {
+            AzureServiceBusConnectionString = settings.AzureServiceBusConnectionString;
+            AzureSqlConnectionString = settings.AzureSqlConnectionString;
+            loopringApiKey = settings.LoopringApiKey;
+            loopringPrivateKey = settings.LoopringPrivateKey;
+            MMorGMEPrivateKey = settings.MMorGMEPrivateKey;
+            settingsSource = "appsettings.json";
+        }
+
+        Console.WriteLine($"[ SETTINGS LOADED ]  :  {settingsSource}");
 
         var clientOptions = new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets };
         client = new ServiceBusClient(AzureServiceBusConnectionString, clientOptions);
@@ -68,6 +100,7 @@ public class Program
             // start processing 
             await processor.StartProcessingAsync();
             Console.WriteLine("Waiting for messages...");
+
             while (true)
             {
 
@@ -131,9 +164,6 @@ public class Program
 
         if(validStatus == 2)
         {
-            string loopringApiKey = settings.LoopringApiKey;//loopring api key KEEP PRIVATE
-            string loopringPrivateKey = settings.LoopringPrivateKey; //loopring private key KEEP PRIVATE
-            var MMorGMEPrivateKey = settings.MMorGMEPrivateKey; //metamask or gamestop private key KEEP PRIVATE
             var fromAddress = settings.LoopringAddress; //your loopring address
             var fromAccountId = settings.LoopringAccountId; //your loopring account id
             var validUntil = settings.ValidUntil; //the examples seem to use this number
