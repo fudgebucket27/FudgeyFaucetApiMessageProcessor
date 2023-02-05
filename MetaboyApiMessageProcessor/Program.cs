@@ -275,9 +275,6 @@ public class Program
                 var ECDRSASignature = ethECKey.SignAndCalculateV(Sha3Keccack.Current.CalculateHash(encodedTypedData));
                 var serializedECDRSASignature = EthECDSASignature.CreateStringSignature(ECDRSASignature);
                 var ecdsaSignature = serializedECDRSASignature + "0" + (int)2;
-
-                // DEBUG   ---- DO NOT ACTUALLY TRANSFER ANY NFTS - FOR TESTING ONLY
-                /*
                 
                 //Submit nft transfer
                 var nftTransferResponse = await loopringService.SubmitNftTransfer(
@@ -301,9 +298,6 @@ public class Program
                 Console.WriteLine(nftTransferResponse);
 
                 if(nftTransferResponse.Contains("process") || nftTransferResponse.Contains("received"))
-                */
-                // DEBUG
-                if (1 == 1)
                 {
                     try
                     {
@@ -319,7 +313,7 @@ public class Program
                                 Amount = nftAmount
                             };
                             // Insert record into Completed Claims
-                            await db.ExecuteAsync("INSERT INTO Claimed (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
+                            var insertResult = await db.ExecuteAsync("INSERT INTO Claimed (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
                             
 
                             var deleteParameters = new
@@ -329,9 +323,9 @@ public class Program
 
                             };
                             // Delete record from Available Claims
-                            await db.ExecuteAsync("DELETE FROM Allowlist WHERE Address = @Address AND NftData = @NftData)", deleteParameters);
+                            var deleteResult = await db.ExecuteAsync("DELETE FROM Allowlist WHERE Address = @Address AND NftData = @NftData", deleteParameters);
                             await db.CloseAsync();
-                            Console.WriteLine($"Transferring to Address: {nftReciever.Address}  {nftAmount} of Nft: {nftReciever.NftData}");
+                            Console.WriteLine($"Database Updated, Transferring to Address: {nftReciever.Address}  {nftAmount} of Nft: {nftReciever.NftData}");
                         }
                     }
                     catch (Exception ex)
