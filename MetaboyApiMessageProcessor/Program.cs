@@ -147,9 +147,6 @@ public class Program
             try
             {
                 userNftToken = await loopringService.GetTokenIdWithCheck(settings.LoopringApiKey, settings.LoopringAccountId, nftData);
-                
-                // DEBUG -- We seem to be failing below! What is different here compared to what is in production!?
-                
                 nftTokenId = userNftToken.data[0].tokenId;
                 var toAddress = nftReciever.Address;
 
