@@ -176,9 +176,7 @@ public class Program
             string transferMemo = settings.TransferMemo;
             try
             {
-                userNftToken = await loopringService.GetTokenIdWithCheck(settings.LoopringApiKey, settings.LoopringAccountId, nftData);
-                
-                // DEBUG -- We seem to be failing below! What is different here compared to what is in production!?
+                userNftToken = await loopringService.GetTokenIdWithCheck(loopringApiKey, settings.LoopringAccountId, nftData);
                 
                 nftTokenId = userNftToken.data[0].tokenId;
                 var toAddress = nftReciever.Address;
