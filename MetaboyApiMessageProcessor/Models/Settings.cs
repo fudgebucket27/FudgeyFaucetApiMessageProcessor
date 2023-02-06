@@ -22,5 +22,9 @@ namespace LoopDropSharp
 
         public string AzureSqlConnectionString { get; set; }
         public string TransferMemo { get; set; }
+
+        public string Description { get; set; }
+        public string Environment { get; set; }
+        public bool UseAzureKeyVault { get; set; }
     }
 }

@@ -36,6 +36,17 @@ public class Program
 
     static string AzureSqlConnectionString = "";
 
+    static string loopringApiKey = "";
+    static string loopringPrivateKey = "";
+    static string MMorGMEPrivateKey = "";
+
+    // Following are now stored in Azure KeyVault:
+    // AzureServiceBusConnectionString
+    // AzureSqlConnectionString
+    // LoopringApiKey
+    // LoopringPrivateKey
+    // MMorGMEPrivateKey
+
     static async Task Main(string[] args)
     {
         // load services
@@ -48,8 +59,29 @@ public class Program
             .Build();
         settings = config.GetRequiredSection("Settings").Get<Settings>();
 
-        AzureServiceBusConnectionString = settings.AzureServiceBusConnectionString;
-        AzureSqlConnectionString = settings.AzureSqlConnectionString;
+        string settingsSource = "";
+        // Load values from Env supplied by Azure Key Vault
+        if (settings.UseAzureKeyVault == true)
+        {
+            AzureServiceBusConnectionString = config.GetValue<string>("AzureServiceBusConnectionString");
+            AzureSqlConnectionString = config.GetValue<string>("AzureSqlConnectionString");
+            loopringApiKey = config.GetValue<string>("LoopringApiKey");
+            loopringPrivateKey = config.GetValue<string>("LoopringPrivateKey");
+            MMorGMEPrivateKey = config.GetValue<string>("MMorGMEPrivateKey");
+            settingsSource = "Azure Key Vault via App Configuration Environment Settings";
+        }
+        // Use values from appsettings.json
+        else
+        {
+            AzureServiceBusConnectionString = settings.AzureServiceBusConnectionString;
+            AzureSqlConnectionString = settings.AzureSqlConnectionString;
+            loopringApiKey = settings.LoopringApiKey;
+            loopringPrivateKey = settings.LoopringPrivateKey;
+            MMorGMEPrivateKey = settings.MMorGMEPrivateKey;
+            settingsSource = "appsettings.json";
+        }
+
+        Console.WriteLine($"[ SETTINGS LOADED ]  :  {settingsSource}");
 
         var clientOptions = new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets };
         client = new ServiceBusClient(AzureServiceBusConnectionString, clientOptions);
@@ -68,6 +100,7 @@ public class Program
             // start processing 
             await processor.StartProcessingAsync();
             Console.WriteLine("Waiting for messages...");
+
             while (true)
             {
 
@@ -95,18 +128,21 @@ public class Program
             using (SqlConnection db = new System.Data.SqlClient.SqlConnection(AzureSqlConnectionString))
             {
                 await db.OpenAsync();
-                var claimedListParameters = new { Address = nftReciever.Address, NftData = nftReciever.NftData };
-                var claimedListSql = "select * from claimed where nftdata = @NftData and address = @Address";
+                // Check if Nft is in Claimable
+                var claimedListParameters = new { NftData = nftReciever.NftData };
+                var claimedListSql = "SELECT * FROM Claimable WHERE nftdata = @NftData";
                 var claimedListResult = await db.QueryAsync<Claimed>(claimedListSql, claimedListParameters);
-                if (claimedListResult.Count() == 0)
+                if (claimedListResult.Count() > 0)
                 {
+                    // Check if Nft is in Allowlist and obtain Amount
                     var allowListParameters = new { Address = nftReciever.Address, NftData = nftReciever.NftData };
-                    var allowListSql = "select * from allowlist where nftdata = @NftData and address = @Address";
+                    var allowListSql = "SELECT * FROM Allowlist WHERE NftData = @NftData AND Address = @Address";
                     var allowListResult = await db.QueryAsync<AllowList>(allowListSql, allowListParameters);
                     if (allowListResult.Count() == 1)
                     {
                         nftAmount = allowListResult.First().Amount;
                         validStatus = 2; //valid continue
+                        Console.WriteLine($"[INFO] Submitting Valid Claim for Transfer. Address: {nftReciever.Address} Nft : {nftReciever.NftData} Amount: {nftAmount}");
                     }
                     else
                     {
@@ -117,6 +153,7 @@ public class Program
                 {
                     validStatus = 0; //not valid, don't continue
                 }
+                await db.CloseAsync();
             }
         }
         catch (Exception ex)
@@ -127,9 +164,6 @@ public class Program
 
         if(validStatus == 2)
         {
-            string loopringApiKey = settings.LoopringApiKey;//loopring api key KEEP PRIVATE
-            string loopringPrivateKey = settings.LoopringPrivateKey; //loopring private key KEEP PRIVATE
-            var MMorGMEPrivateKey = settings.MMorGMEPrivateKey; //metamask or gamestop private key KEEP PRIVATE
             var fromAddress = settings.LoopringAddress; //your loopring address
             var fromAccountId = settings.LoopringAccountId; //your loopring account id
             var validUntil = settings.ValidUntil; //the examples seem to use this number
@@ -143,6 +177,9 @@ public class Program
             try
             {
                 userNftToken = await loopringService.GetTokenIdWithCheck(settings.LoopringApiKey, settings.LoopringAccountId, nftData);
+                
+                // DEBUG -- We seem to be failing below! What is different here compared to what is in production!?
+                
                 nftTokenId = userNftToken.data[0].tokenId;
                 var toAddress = nftReciever.Address;
 
@@ -268,7 +305,7 @@ public class Program
                 var ECDRSASignature = ethECKey.SignAndCalculateV(Sha3Keccack.Current.CalculateHash(encodedTypedData));
                 var serializedECDRSASignature = EthECDSASignature.CreateStringSignature(ECDRSASignature);
                 var ecdsaSignature = serializedECDRSASignature + "0" + (int)2;
-
+                
                 //Submit nft transfer
                 var nftTransferResponse = await loopringService.SubmitNftTransfer(
                     apiKey: loopringApiKey,
@@ -305,7 +342,20 @@ public class Program
                                        CultureInfo.InvariantCulture),
                                 Amount = nftAmount
                             };
-                            await db.ExecuteAsync("INSERT INTO Claimed (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
+                            // Insert record into Completed Claims
+                            var insertResult = await db.ExecuteAsync("INSERT INTO Claimed (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
+                            
+
+                            var deleteParameters = new
+                            {
+                                NftData = nftReciever.NftData,
+                                Address = nftReciever.Address
+
+                            };
+                            // Delete record from Available Claims
+                            var deleteResult = await db.ExecuteAsync("DELETE FROM Allowlist WHERE Address = @Address AND NftData = @NftData", deleteParameters);
+                            await db.CloseAsync();
+                            Console.WriteLine($"Database Updated, Transferring to Address: {nftReciever.Address}  {nftAmount} of Nft: {nftReciever.NftData}");
                         }
                     }
                     catch (Exception ex)
