@@ -177,7 +177,7 @@ public class Program
             try
             {
                 userNftToken = await loopringService.GetTokenIdWithCheck(loopringApiKey, settings.LoopringAccountId, nftData);
-                
+
                 nftTokenId = userNftToken.data[0].tokenId;
                 var toAddress = nftReciever.Address;
 
