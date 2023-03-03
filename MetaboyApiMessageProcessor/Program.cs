@@ -81,7 +81,7 @@ public class Program
             settingsSource = "appsettings.json";
         }
 
-        Console.WriteLine($"[ SETTINGS LOADED ]  :  {settingsSource} / n Environment: {settings.Description}");
+        Console.WriteLine($"[ SETTINGS LOADED ]  :  {settingsSource} \n Environment: {settings.Description}");
 
         var clientOptions = new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets };
         client = new ServiceBusClient(AzureServiceBusConnectionString, clientOptions);
