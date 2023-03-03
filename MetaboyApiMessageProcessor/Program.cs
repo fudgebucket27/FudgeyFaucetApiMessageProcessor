@@ -129,10 +129,10 @@ public class Program
             {
                 await db.OpenAsync();
                 // Check if Nft is in Claimable
-                var claimedListParameters = new { NftData = nftReciever.NftData };
-                var claimedListSql = "SELECT * FROM Claimable WHERE nftdata = @NftData";
-                var claimedListResult = await db.QueryAsync<Claimed>(claimedListSql, claimedListParameters);
-                if (claimedListResult.Count() > 0)
+                var claimableListParameters = new { NftData = nftReciever.NftData };
+                var claimableListSql = "SELECT * FROM Claimable WHERE nftdata = @NftData";
+                var claimableListResult = await db.QueryAsync<Claimable>(claimableListSql, claimableListParameters);
+                if (claimableListResult.Count() > 0)
                 {
                     // Check if Nft is in Allowlist and obtain Amount
                     var allowListParameters = new { Address = nftReciever.Address, NftData = nftReciever.NftData };
@@ -360,6 +360,10 @@ public class Program
                     {
                         Console.WriteLine(ex.Message);
                     }
+                }
+                else
+                {
+                    Console.WriteLine($"[WARNING] : Loopring did NOT return expected results \n {nftTransferResponse}");
                 }
             }
             catch (Exception ex)
