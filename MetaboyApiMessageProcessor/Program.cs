@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using LoopDropSharp;
 using MetaboyApiMessageProcessor.Models;
 using Microsoft.Extensions.Configuration;
@@ -11,8 +10,6 @@ using PoseidonSharp;
 using Type = LoopDropSharp.Type;
 using System.Numerics;
 using Dapper;
-using System.Data;
-using MetaboyApi.Models;
 using System.Globalization;
 using System.Data.SqlClient;
 
