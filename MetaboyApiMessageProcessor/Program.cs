@@ -99,7 +99,7 @@ public class Program
 
             // start processing 
             await processor.StartProcessingAsync();
-            Console.WriteLine("Waiting for messages...");
+            Console.WriteLine("[INFO ] Ready to accept messages...");
 
             while (true)
             {
