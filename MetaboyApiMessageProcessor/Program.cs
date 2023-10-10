@@ -373,7 +373,7 @@ public class Program
         {
             try
             {
-                Console.WriteLine($"This address: {nftReciever.Address}, is not in the allow list for nft: {nftReciever.NftData}");
+                Console.WriteLine($"This address: {nftReciever.Address}, has already claimed for nftData: {nftReciever.NftData}");
                 await args.CompleteMessageAsync(args.Message);
             }
             catch (Exception ex)
@@ -385,7 +385,7 @@ public class Program
         {
             try
             {
-                Console.WriteLine($"This address: {nftReciever.Address}, has already claimed nft: {nftReciever.NftData}");
+                Console.WriteLine($"This nftData is not claimable: {nftReciever.NftData}");
                 await args.CompleteMessageAsync(args.Message);
             }
             catch (Exception ex)
