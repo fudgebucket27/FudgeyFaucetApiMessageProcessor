@@ -339,7 +339,7 @@ public class Program
                             var deleteResult = await db.ExecuteAsync("DELETE FROM Allowlist WHERE Address = @Address AND NftData = @NftData", deleteParameters);
                             */
                             //await db.CloseAsync();
-                            Console.WriteLine($"Database Updated, Transferred to Address: {nftReciever.Address}  {nftAmount} of Nft: {nftReciever.NftData}");
+                            Console.WriteLine($"Database Updated, Transferred to Address: {nftReciever.Address}, {nftAmount} of NftData: {nftReciever.NftData}");
                         }
                     }
                     catch (Exception ex)
