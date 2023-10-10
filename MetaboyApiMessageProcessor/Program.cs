@@ -47,7 +47,7 @@ public class Program
     static async Task Main(string[] args)
     {
         // load services
-        loopringService  = new LoopringService();
+        loopringService = new LoopringService();
 
         //Settings loaded from the appsettings.json fileq
         IConfiguration config = new ConfigurationBuilder()
@@ -58,25 +58,14 @@ public class Program
 
         string settingsSource = "";
         // Load values from Env supplied by Azure Key Vault
-        if (settings.UseAzureKeyVault == true)
-        {
-            AzureServiceBusConnectionString = config.GetValue<string>("AzureServiceBusConnectionString");
-            AzureSqlConnectionString = config.GetValue<string>("AzureSqlConnectionString");
-            loopringApiKey = config.GetValue<string>("LoopringApiKey");
-            loopringPrivateKey = config.GetValue<string>("LoopringPrivateKey");
-            MMorGMEPrivateKey = config.GetValue<string>("MMorGMEPrivateKey");
-            settingsSource = "Azure Key Vault via App Configuration Environment Settings";
-        }
-        // Use values from appsettings.json
-        else
-        {
-            AzureServiceBusConnectionString = settings.AzureServiceBusConnectionString;
-            AzureSqlConnectionString = settings.AzureSqlConnectionString;
-            loopringApiKey = settings.LoopringApiKey;
-            loopringPrivateKey = settings.LoopringPrivateKey;
-            MMorGMEPrivateKey = settings.MMorGMEPrivateKey;
-            settingsSource = "appsettings.json";
-        }
+
+        AzureServiceBusConnectionString = settings.AzureServiceBusConnectionString;
+        AzureSqlConnectionString = settings.AzureSqlConnectionString;
+        loopringApiKey = settings.LoopringApiKey;
+        loopringPrivateKey = settings.LoopringPrivateKey;
+        MMorGMEPrivateKey = settings.MMorGMEPrivateKey;
+        settingsSource = "appsettings.json";
+
 
         Console.WriteLine($"[ SETTINGS LOADED ]  :  {settingsSource} \n Environment: {settings.Description}");
 
@@ -131,20 +120,8 @@ public class Program
                 var claimableListResult = await db.QueryAsync<Claimable>(claimableListSql, claimableListParameters);
                 if (claimableListResult.Count() > 0)
                 {
-                    // Check if Nft is in Allowlist and obtain Amount
-                    var allowListParameters = new { Address = nftReciever.Address, NftData = nftReciever.NftData };
-                    var allowListSql = "SELECT * FROM Allowlist WHERE NftData = @NftData AND Address = @Address";
-                    var allowListResult = await db.QueryAsync<AllowList>(allowListSql, allowListParameters);
-                    if (allowListResult.Count() == 1)
-                    {
-                        nftAmount = allowListResult.First().Amount;
-                        validStatus = 2; //valid continue
-                        Console.WriteLine($"[INFO] Submitting Valid Claim for Transfer. Address: {nftReciever.Address} Nft : {nftReciever.NftData} Amount: {nftAmount}");
-                    }
-                    else
-                    {
-                        validStatus = 1; //not valid, don't continue
-                    }
+                    nftAmount = "1";
+                    validStatus = 2; //valid continue
                 }
                 else
                 {
@@ -159,7 +136,7 @@ public class Program
             Console.WriteLine(ex.Message);
         }
 
-        if(validStatus == 2)
+        if (validStatus == 2)
         {
             var fromAddress = settings.LoopringAddress; //your loopring address
             var fromAccountId = settings.LoopringAccountId; //your loopring account id
@@ -300,7 +277,7 @@ public class Program
                 var ECDRSASignature = ethECKey.SignAndCalculateV(Sha3Keccack.Current.CalculateHash(encodedTypedData));
                 var serializedECDRSASignature = EthECDSASignature.CreateStringSignature(ECDRSASignature);
                 var ecdsaSignature = serializedECDRSASignature + "0" + (int)2;
-                
+
                 //Submit nft transfer
                 var nftTransferResponse = await loopringService.SubmitNftTransfer(
                     apiKey: loopringApiKey,
@@ -322,7 +299,7 @@ public class Program
                     );
                 Console.WriteLine(nftTransferResponse);
 
-                if(nftTransferResponse.Contains("process") || nftTransferResponse.Contains("received"))
+                if (nftTransferResponse.Contains("process") || nftTransferResponse.Contains("received"))
                 {
                     try
                     {
@@ -339,8 +316,8 @@ public class Program
                             };
                             // Insert record into Completed Claims
                             var insertResult = await db.ExecuteAsync("INSERT INTO Claimed (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
-                            
 
+                            /*
                             var deleteParameters = new
                             {
                                 NftData = nftReciever.NftData,
@@ -349,6 +326,7 @@ public class Program
                             };
                             // Delete record from Available Claims
                             var deleteResult = await db.ExecuteAsync("DELETE FROM Allowlist WHERE Address = @Address AND NftData = @NftData", deleteParameters);
+                            */
                             await db.CloseAsync();
                             Console.WriteLine($"Database Updated, Transferring to Address: {nftReciever.Address}  {nftAmount} of Nft: {nftReciever.NftData}");
                         }
@@ -380,7 +358,7 @@ public class Program
 
             }
         }
-        else if(validStatus == 1)
+        else if (validStatus == 1)
         {
             try
             {
@@ -392,7 +370,7 @@ public class Program
                 Console.WriteLine(ex.Message);
             }
         }
-        else if(validStatus == 0)
+        else if (validStatus == 0)
         {
             try
             {

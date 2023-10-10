@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk;Microsoft.NET.Sdk.Publish">
+﻿<Project Sdk="Microsoft.NET.Sdk;Microsoft.NET.Sdk.Publish">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
@@ -15,7 +15,7 @@
     <PackageReference Include="Nethereum.Signer.EIP712" Version="4.1.1" />
     <PackageReference Include="Nethereum.Web3" Version="4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="PoseidonSharp" Version="1.0.0" />
+    <PackageReference Include="PoseidonSharp" Version="1.0.7" />
     <PackageReference Include="RestSharp" Version="108.0.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
