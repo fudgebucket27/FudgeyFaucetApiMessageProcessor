@@ -12,6 +12,7 @@ using System.Numerics;
 using Dapper;
 using System.Globalization;
 using System.Data.SqlClient;
+using MetaboyApi.Models;
 
 public class Program
 {
@@ -120,8 +121,18 @@ public class Program
                 var claimableListResult = await db.QueryAsync<Claimable>(claimableListSql, claimableListParameters);
                 if (claimableListResult.Count() > 0)
                 {
-                    nftAmount = "1";
-                    validStatus = 2; //valid continue
+                    var claimedListParameters = new { Address = nftReciever.Address, NftData = nftReciever.NftData };
+                    var claimedListSql = "select * from claimed where nftdata = @NftData and address = @Address";
+                    var claimedListResult = await db.QueryAsync<Claimed>(claimedListSql, claimedListParameters);
+                    if (claimedListResult.Count() == 0)
+                    {
+                        nftAmount = "1";
+                        validStatus = 2; //valid continue
+                    }
+                    else
+                    {
+                        validStatus = 1;
+                    }
                 }
                 else
                 {
