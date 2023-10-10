@@ -131,7 +131,7 @@ public class Program
                     }
                     else
                     {
-                        validStatus = 1;
+                        validStatus = 1; //has been claimed already
                     }
                 }
                 else
