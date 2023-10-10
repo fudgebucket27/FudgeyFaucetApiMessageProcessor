@@ -327,8 +327,8 @@ public class Program
                             // Delete record from Available Claims
                             var deleteResult = await db.ExecuteAsync("DELETE FROM Allowlist WHERE Address = @Address AND NftData = @NftData", deleteParameters);
                             */
-                            await db.CloseAsync();
-                            Console.WriteLine($"Database Updated, Transferring to Address: {nftReciever.Address}  {nftAmount} of Nft: {nftReciever.NftData}");
+                            //await db.CloseAsync();
+                            Console.WriteLine($"Database Updated, Transferred to Address: {nftReciever.Address}  {nftAmount} of Nft: {nftReciever.NftData}");
                         }
                     }
                     catch (Exception ex)
