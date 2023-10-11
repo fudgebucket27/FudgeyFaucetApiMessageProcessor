@@ -340,7 +340,7 @@ public class Program
                             if (maxAmount.HasValue && claimedCount >= maxAmount.Value)
                             {
                                 string deleteQuery = "DELETE FROM Claimable WHERE NftData = @NftData";
-                                db.Execute(deleteQuery, new { NftData = nftData });
+                                await db.ExecuteAsync(deleteQuery, new { NftData = nftData });
                             }
                             Console.WriteLine($"Database Updated, Transferred to Address: {nftReciever.Address}, {nftAmount} of NftData: {nftReciever.NftData}");
                         }
