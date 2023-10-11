@@ -330,11 +330,11 @@ public class Program
 
                             //Fetch count from Claimed table based on NftData
                             string countQuery = "SELECT COUNT(*) as Count FROM Claimed WHERE NftData = @NftData";
-                            int claimedCount = db.QuerySingle<int>(countQuery, new { NftData = nftData });
+                            int claimedCount = await db.QuerySingleAsync<int>(countQuery, new { NftData = nftData });
 
                             //Fetch maxamount from Claimable table
                             string maxAmountQuery = "SELECT maxamount FROM Claimable WHERE NftData = @NftData";
-                            int? maxAmount = db.QuerySingleOrDefault<int?>(maxAmountQuery, new { NftData = nftData });
+                            int? maxAmount = await db.QuerySingleOrDefaultAsync<int?>(maxAmountQuery, new { NftData = nftData });
 
                             //Compare the two values and delete the NftData from the Claimable table if the condition is met
                             if (maxAmount.HasValue && claimedCount >= maxAmount.Value)
