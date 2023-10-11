@@ -10,5 +10,6 @@ namespace MetaboyApiMessageProcessor.Models
     {
         public string NftName { get; set; }
         public string NftData { get; set; }
+        public int MaxAmount { get; set; }
     }
 }

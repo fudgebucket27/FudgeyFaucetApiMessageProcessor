@@ -328,17 +328,20 @@ public class Program
                             // Insert record into Completed Claims
                             var insertResult = await db.ExecuteAsync("INSERT INTO Claimed (Address,NftData,ClaimedDate,Amount) VALUES (@Address, @NftData, @ClaimedDate, @Amount)", insertParameters);
 
-                            /*
-                            var deleteParameters = new
-                            {
-                                NftData = nftReciever.NftData,
-                                Address = nftReciever.Address
+                            //Fetch count from Claimed table based on NftData
+                            string countQuery = "SELECT COUNT(*) as Count FROM Claimed WHERE NftData = @NftData";
+                            int claimedCount = db.QuerySingle<int>(countQuery, new { NftData = nftData });
 
-                            };
-                            // Delete record from Available Claims
-                            var deleteResult = await db.ExecuteAsync("DELETE FROM Allowlist WHERE Address = @Address AND NftData = @NftData", deleteParameters);
-                            */
-                            //await db.CloseAsync();
+                            //Fetch maxamount from Claimable table
+                            string maxAmountQuery = "SELECT maxamount FROM Claimable WHERE NftData = @NftData";
+                            int? maxAmount = db.QuerySingleOrDefault<int?>(maxAmountQuery, new { NftData = nftData });
+
+                            // Step 3: Compare the two values and delete the NftData from the Claimable table if the condition is met
+                            if (maxAmount.HasValue && claimedCount >= maxAmount.Value)
+                            {
+                                string deleteQuery = "DELETE FROM Claimable WHERE NftData = @NftData";
+                                db.Execute(deleteQuery, new { NftData = nftData });
+                            }
                             Console.WriteLine($"Database Updated, Transferred to Address: {nftReciever.Address}, {nftAmount} of NftData: {nftReciever.NftData}");
                         }
                     }
