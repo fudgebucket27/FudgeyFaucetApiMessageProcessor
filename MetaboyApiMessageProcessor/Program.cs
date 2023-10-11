@@ -336,7 +336,7 @@ public class Program
                             string maxAmountQuery = "SELECT maxamount FROM Claimable WHERE NftData = @NftData";
                             int? maxAmount = db.QuerySingleOrDefault<int?>(maxAmountQuery, new { NftData = nftData });
 
-                            // Step 3: Compare the two values and delete the NftData from the Claimable table if the condition is met
+                            //Compare the two values and delete the NftData from the Claimable table if the condition is met
                             if (maxAmount.HasValue && claimedCount >= maxAmount.Value)
                             {
                                 string deleteQuery = "DELETE FROM Claimable WHERE NftData = @NftData";
